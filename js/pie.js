@@ -35,12 +35,12 @@ var buildPieChart = function(data) {
 		.attr('transform', 'translate(' + ((width + margin.left + margin.right) / 2) +
 			',' + ((height + margin.top + margin.bottom) / 2) + ')');
 
-	var arc = d3.svg.arc()
+	var arc = d3.arc()
 		.innerRadius(radius - ring)
 		.outerRadius(radius);
 
-	var pie = d3.layout.pie()
-		.value(function(d) {return d.amount})
+	var pie = d3.pie()
+		.value(function(d) {return Math.abs(d.amount)})
 		.sort(null);
 
 	var segments = piechart.selectAll('g')
@@ -49,7 +49,7 @@ var buildPieChart = function(data) {
 		.append('g')
 		.attr('class', 'pie-segment');
 
-	var color = d3.scale.category20();
+	var color = d3.scaleOrdinal(d3.schemeCategory20);
 
 	segments.append('path')
 		.attr('d', arc)
@@ -95,7 +95,7 @@ var buildPieChart = function(data) {
 		total += pieData[i].amount;
 	}
 
-	var formatNum = d3.format(',f');
+	var formatNum = d3.format(',d');
 
 	segments.append('text')
 		.attr('text-anchor', 'middle')
@@ -115,12 +115,4 @@ var buildPieChart = function(data) {
 		.attr('text-anchor', 'middle')
 		.attr('x', 0)
 		.attr('y', -180);
-
 };
-
-
-
-
-
-
-

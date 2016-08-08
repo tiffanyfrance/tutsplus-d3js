@@ -6,10 +6,8 @@ var buildTimeline = function(data) {
 
 	var timeline = d3.select('#timeline')
 		.append('svg')
-		.attr({
-			'width': width + margin.left + margin.right,
-			'height': height + margin.top + margin.bottom
-		})
+		.attr('width', width + margin.left + margin.right)
+		.attr('height', height + margin.top + margin.bottom)
 		.append('g')
 		.attr('transform',
 			'translate(' + margin.left + ',' + margin.top + ')');
@@ -41,26 +39,25 @@ var buildTimeline = function(data) {
 	});
 
 
-	var x = d3.scale.ordinal()
+	var x = d3.scaleBand()
 		.domain(condesendData.map(function(d) {return d.transDate}))
-		.rangeRoundBands([0,width], .05);
+		.rangeRound([0,width])
+		.padding(.05);
 
-	var xAxis = d3.svg.axis()
-		.scale(x)
-		.orient('bottom')
-		.outerTickSize(0)
-		.tickFormat(d3.time.format('%m/%d/%Y'));
+	var xAxis = d3.axisBottom(x)
+		.tickSize(0)
+		.tickPadding(0)
+		.tickFormat(d3.timeFormat('%m/%d/%Y'));
 
 	var max = d3.max(condesendData, function(d) {return Math.abs(d.amount)});
 
-	var y = d3.scale.linear()
+	var y = d3.scaleLinear()
 		.domain([-max,max])
 		.range([height,0]);
 
-	var yAxis = d3.svg.axis()
-		.scale(y)
-		.orient('left')
-		.outerTickSize(0);
+	var yAxis = d3.axisLeft(y)
+		.tickSize(0)
+		.tickPadding(10);
 
 
 	timeline.append('g')
@@ -70,10 +67,8 @@ var buildTimeline = function(data) {
 		.selectAll('text')
 		.style('text-anchor', 'end')
 		.attr('transform', 'rotate(-90)')
-		.attr({
-			'dy': '-.3em',
-			'dx': '-1em'
-		});
+		.attr('dy', '.3em')
+		.attr('dx', '-1em');
 
 	timeline.append('g')
 		.attr('class', 'y-axis')
@@ -84,15 +79,13 @@ var buildTimeline = function(data) {
 		.data(condesendData)
 		.enter()
 		.append('rect')
-		.attr({
-			'x': function(d) {return x(d.transDate)},
-			'y': function(d) {return y(Math.max(0, d.amount))},
-			'width': x.rangeBand(),
-			'height': function(d) {return Math.abs(y(d.amount) - y(0))}
-		})
+		.attr('x', function(d) {return x(d.transDate)})
+		.attr('y', function(d) {return y(Math.max(0, d.amount))})
+		.attr('width', x.bandwidth())
+		.attr('height', function(d) {return Math.abs(y(d.amount) - y(0))})
 		.attr('fill', function(d) {return (d.amount < 0) ? '#d62728' : '#1f77b4'});
 
-	var format = d3.time.format('%m/%d/%Y');
+	var format = d3.timeFormat('%m/%d/%Y');
 
 	var minDate = d3.min(condesendData, function(d) {return d.transDate});
 
@@ -103,19 +96,4 @@ var buildTimeline = function(data) {
 		.style('font-size', '16px')
 		.attr('x', -40)
 		.attr('y', -20);
-
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
+};
